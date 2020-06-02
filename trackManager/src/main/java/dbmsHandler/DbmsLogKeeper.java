@@ -1,5 +1,6 @@
 package dbmsHandler;
 /*
+	Code:- Amrit Raj
  	This class is exclusively for keeping the logs generated out of
  	trackManager.java file. This stores and shows the logs which 
  	come up during the execution of the saild code via a lambda 
