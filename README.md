@@ -17,4 +17,4 @@ The JAR file is the final compiled form of the project and can be run dirctly in
 4. One needs to add a trigger to the table named playlist-records calling the lambda function with the JAR
 5. The outcomes and logs can be seen as well. We have a log keeping utility class called DbmsLogKeeper.java
 6. The Dependency POM.xml file contains list of all dependencies and build specifications. On building with eclipse, it will auto download all the dependencies.
-7. The most important file which contains the main code is called the Handler.java
+7. The most important file which contains the main code is called the PlaylistUpdateHandler.java
