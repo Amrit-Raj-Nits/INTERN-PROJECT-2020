@@ -1,4 +1,5 @@
 /*
+   @Amrit Raj
  * This is a POJO class to store the variables which will be used to update the tables
  */
 package dbmsHandler;
