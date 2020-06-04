@@ -8,6 +8,9 @@ MAJOR CLASSES:-
 4. TableUpdateVariables.java
 5. POM.XML - Dependencies list of maven and build specifications
 
+uses JDK - 9.0 for Compiling the code.
+all the maven dependencies are up-to date as on 4th June, 2020.
+
 ABOUT THE UPLOADED DOCUMENTS : -
 
 1. The document can directly be downloaded and opened using eclipse. After that, one can build it and generate the jar files.
