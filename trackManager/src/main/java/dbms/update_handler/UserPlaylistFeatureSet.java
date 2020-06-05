@@ -3,7 +3,7 @@
  */
 package dbms.update_handler;
 import java.util.HashMap;
-public class TableUpdateVariables{
+public class UserPlaylistFeatureSet{
 	private String new_asin;
 	private String new_pasin;
 	private long new_uid;
@@ -16,7 +16,7 @@ public class TableUpdateVariables{
 	private String new_genre;
 	
 	//Constructor..
-	public TableUpdateVariables(HashMap<String, String> map) {
+	public UserPlaylistFeatureSet(HashMap<String, String> map) {
 		new_asin = map.get("asin");
 		new_pasin = map.get("pasin");
 		new_uid = Long.parseLong(map.get("uid"));
