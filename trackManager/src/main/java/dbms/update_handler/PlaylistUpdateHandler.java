@@ -177,8 +177,8 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    */
 //************************************************ BEGINING OF THE METHOD ****************************************************************** 
   public static int updateTable(HashMap<String, String> map) {
-	  	//Creating an instance of the POJO class TableUpdateVariables...it takes a Map and initializes the variables via the Map...
-	  	TableUpdateVariables tuv = new TableUpdateVariables(map);
+	  	//Creating an instance of the POJO class UserPlaylistFeatureSet...it takes a Map and initializes the variables via the Map...
+	  	UserPlaylistFeatureSet tuv = new UserPlaylistFeatureSet(map);
 	  	
 		//Now reading the contents of the playlist table to update it as per the new entry..
 	  	DynamoDB dynamodb = null;
