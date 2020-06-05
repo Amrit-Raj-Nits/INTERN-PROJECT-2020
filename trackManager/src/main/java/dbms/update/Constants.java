@@ -2,7 +2,7 @@
  * This class has been defined to store the constants.
  * The constants are public and can directly be accessed without a getter method.
  */
-package dbms.update_handler;
+package dbms.update;
 public class Constants{
 	//Declaring the variables..
 	static final int INVALID_INDEX = -1; //IF SEARCH ITEM NOT FOUND
