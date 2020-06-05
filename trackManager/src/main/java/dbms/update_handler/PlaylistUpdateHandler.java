@@ -41,9 +41,9 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 
   public String handleRequest(Object obj, Context context) {
 	//Logging the begining of the LOG..  
-  	myLog.makeInfoLog("*** LOGGING STARTS FOR HANDLER.JAVA ***");
+  	myLog.logInfo("*** LOGGING STARTS FOR HANDLER.JAVA ***");
   		//Logging the event details..
-  		myLog.makeInfoLog("Event details = "+ obj.toString());
+  		myLog.logInfo("Event details = "+ obj.toString());
 		String eventName = "";
   	
 		// Converting the Object into String..
@@ -51,12 +51,12 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 
 		//Setting up the cases when the event is not a dynamoDB event..
 		if (event.indexOf("Keys") == fix.INVALID_INDEX || event.indexOf("SequenceNumber") == fix.INVALID_INDEX || event.indexOf("Keys") >= event.indexOf("SequenceNumber")) {
-			myLog.makeInfoLog("Invalid Entry!");
+			myLog.logInfo("Invalid Entry!");
 		}
 		else {
 			String eventNameGetter[] = event.substring(event.indexOf("eventName"), event.indexOf(",", event.indexOf("eventName"))).split("=");
 			eventName = eventNameGetter[1].trim();
-			myLog.makeInfoLog("Event name = "+ eventName);
+			myLog.logInfo("Event name = "+ eventName);
 		}
 		
 		//Now we have the event type which can either be INSERT or REMOVE based on the problem
@@ -68,11 +68,11 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			handleRemove(event);
 		}
 		else {
-			myLog.makeInfoLog("This is an invalid Event for the action!");
+			myLog.logInfo("This is an invalid Event for the action!");
 			return "Faliure!";
 		}
 		
-		myLog.makeInfoLog("Transaction Completed Successfully!");
+		myLog.logInfo("Transaction Completed Successfully!");
 		return "Success!";
 	}
   
@@ -89,7 +89,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   	String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
   	if(newImage.length() == 0) {
   		//A case which corresponds to an erranous case..
-  		myLog.makeInfoLog("Empty newImage!");
+  		myLog.logInfo("Empty newImage!");
   	}
   	else {
   		//Getting all items of the newImage which are space separated...
@@ -103,17 +103,17 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   			map.put(tempId, tempValue);
   		}
   		//Logging the key and value map of newly inserted item as a Map...
-  		myLog.makeInfoLog("Map of new Image = "+map.toString());
+  		myLog.logInfo("Map of new Image = "+map.toString());
   		
   		 //Calling the method to update the details based on the details stored in the map..return 1 if success and 0 if failed.
   		 int success = updateTable(map); 	
   		 if(success == 1) {
   			//Notifying the successful completion of the transaction..
-  			myLog.makeInfoLog("Entry Successful!");
+  			myLog.logInfo("Entry Successful!");
   		 }
   		 else {
   			 //Notifying the failure of updation..
-  			myLog.makeInfoLog("updateMethod failed to update the table!");
+  			myLog.logInfo("updateMethod failed to update the table!");
   		 }
   	}
   }
@@ -139,7 +139,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
 	    if(newImage.length() == 0) {
 	    	//A case which corresponds to an erranous case..
-	    	myLog.makeInfoLog("Empty newImage!");
+	    	myLog.logInfo("Empty newImage!");
 	    }
 	    else {
 	    	//Getting all items of the newImage which are space separated...
@@ -153,17 +153,17 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    		map.put(tempId, tempValue);
 	    	}
 	    	//Logging the key and value map of newly inserted item as  a Map...
-	    	myLog.makeInfoLog("Map of Old Image = "+map.toString());
+	    	myLog.logInfo("Map of Old Image = "+map.toString());
 	    	
 	    	//Calling the method to update the details based on the details stored in the map..return 1 if success and 0 if failed.
 	    	int success = updateTable(map); 	
 	  		 if(success == 1) {
 	  			//Notifying the successful completion of the transaction..
-	  			myLog.makeInfoLog("Removal Successful!");
+	  			myLog.logInfo("Removal Successful!");
 	  		 }
 	  		 else {
 	  			//Notifying the Failed update..
-	  			myLog.makeInfoLog("updateMethod failed to update the table!");
+	  			myLog.logInfo("updateMethod failed to update the table!");
 	  		 }
 	    }
   }
@@ -187,7 +187,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			dynamodb = new DynamoDB(playlistClient);
 		}
 		catch(Exception e) {
-			myLog.makeInfoLog("Error in making connection to DynamoDB. Precise error = "+e);
+			myLog.logInfo("Error in making connection to DynamoDB. Precise error = "+e);
 			return 0;
 		}
 		
@@ -213,7 +213,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		while(itr.hasNext()) {
 			//Logging the details from each item..
 			Item temp = (Item)itr.next();
-			myLog.makeInfoLog("Item = "+temp.toString());
+			myLog.logInfo("Item = "+temp.toString());
 			String eraTemp[] = temp.get("release").toString().split(" "); //In the format date month year...so 0 = date, 1 = month, 2 = year..
 			//Extracting the year for classifying it into an era..
 			int eraYear = Integer.parseInt(eraTemp[2]);
@@ -252,10 +252,10 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		}
 		
 		//Logging all the map's values....
-		myLog.makeInfoLog("Artist_dir map = "+artist_dir.toString());
-		myLog.makeInfoLog("Album_dir map = "+album_dir.toString());
-		myLog.makeInfoLog("Genre_dir map = "+genre_dir.toString());
-		myLog.makeInfoLog("Era_dir map = "+era_dir.toString());
+		myLog.logInfo("Artist_dir map = "+artist_dir.toString());
+		myLog.logInfo("Album_dir map = "+album_dir.toString());
+		myLog.logInfo("Genre_dir map = "+genre_dir.toString());
+		myLog.logInfo("Era_dir map = "+era_dir.toString());
 		
 		//Declaring list variables
 		ArrayList<String> artist_list = new ArrayList<String>();
@@ -320,12 +320,12 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		try {
 			//Running the update query and storing the result in the outcom variable..
 			UpdateItemOutcome outcome = table.updateItem(updatedItem);
-			myLog.makeInfoLog("Update Successful! outcome = "+outcome);
+			myLog.logInfo("Update Successful! outcome = "+outcome);
 		}
 		catch(Exception e) {
 			//Handling any error during the execution of query..
-			myLog.makeInfoLog("Exception e = "+e);
-			myLog.makeInfoLog("Updation failed!");
+			myLog.logInfo("Exception e = "+e);
+			myLog.logInfo("Updation failed!");
 			return 0;
 		}
 		return 1;
