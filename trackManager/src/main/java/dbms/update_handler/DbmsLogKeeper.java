@@ -11,17 +11,17 @@ public class DbmsLogKeeper{
 	//Our Logger instance..
 	private static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	//For making an info level log..
-	static public void makeInfoLog(String s) {
+	static public void logInfo(String s) {
 		LOGGER.log(Level.INFO, s);
 	}
 	
 	//For making an fine level log..
-	static public void makeFineLog(String s) {
+	static public void logFine(String s) {
 		LOGGER.log(Level.FINE, s);
 	}
 	
 	//For making an Severe level log..
-	static public void makeSevereLog(String s) {
+	static public void logSevere(String s) {
 		LOGGER.log(Level.SEVERE, s);
 	}
 }
