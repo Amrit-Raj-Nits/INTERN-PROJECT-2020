@@ -2,8 +2,6 @@ package dbms.update_handler;
 //Basic utilities import..
 import java.io.*;
 import java.util.*;
-import java.io.IOException;
-import java.util.regex.Pattern;
 
 //AWS Specific imports...
 import com.amazonaws.services.lambda.runtime.Context;
