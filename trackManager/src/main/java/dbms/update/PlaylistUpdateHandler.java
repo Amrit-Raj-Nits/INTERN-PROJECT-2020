@@ -1,4 +1,5 @@
 package dbms.update;
+import dbms.utils.DbmsLogKeeper;
 //Basic utilities import..
 import java.io.*;
 import java.util.*;
