@@ -5,10 +5,14 @@
 package dbms.update;
 public class Constants{
 	//Declaring the variables..
-	static final int INVALID_INDEX = -1; //IF SEARCH ITEM NOT FOUND
-	static final int THRESHOLD = 20; //20% const.THRESHOLD
-	static final int LISTSIZE = 5; //SIZE OF THE LIST FOR THE 5 COLUMNS
-	static final int ARTIST_THRESHOLD = 20;//20% const.THRESHOLD FOR ARTISTS
-	static final int ALBUM_THRESHOLD = 20;//20% const.THRESHOLD FOR ARTISTS
-	static final int GENRE_THRESHOLD = 20;//20% const.THRESHOLD FOR ARTISTS
+	public static final int INVALID_INDEX = -1; //IF SEARCH ITEM NOT FOUND
+	public static final int LISTSIZE = 5; //SIZE OF THE LIST FOR THE 5 COLUMNS
+	public static final int ARTIST_THRESHOLD = 20;//20% const.THRESHOLD FOR ARTISTS
+	public static final int ALBUM_THRESHOLD = 20;//20% const.THRESHOLD FOR ALBUMS
+	public static final int GENRE_THRESHOLD = 20;//20% const.THRESHOLD FOR GENRE
+	public static final int ERA1 = 0;//20% const.THRESHOLD FOR GENRE
+	public static final int ERA2 = 1;//20% const.THRESHOLD FOR GENRE
+	public static final int ERA3 = 2;//20% const.THRESHOLD FOR GENRE
+	public static final int ERA4 = 3;//20% const.THRESHOLD FOR GENRE
+	public static final int ERA5 = 4;//20% const.THRESHOLD FOR GENRE
 }
