@@ -52,7 +52,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 
 		//Setting up the cases when the event is not a dynamoDB event..
 		if (event.indexOf("Keys") == fix.INVALID_INDEX || event.indexOf("SequenceNumber") == fix.INVALID_INDEX || event.indexOf("Keys") >= event.indexOf("SequenceNumber")) {
-			myLog.logInfo("Invalid Entry!");
+			myLog.logError("Invalid Entry!");
 		}
 		else {
 			String eventNameGetter[] = event.substring(event.indexOf("eventName"), event.indexOf(",", event.indexOf("eventName"))).split("=");
@@ -69,7 +69,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			handleRemove(event);
 		}
 		else {
-			myLog.logInfo("This is an invalid Event for the action!");
+			myLog.logError("This is an invalid Event for the action!");
 			return "Faliure!";
 		}
 		
@@ -77,12 +77,12 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		return "Success!";
 	}
   
-//                                           BEGINING OF METHOD 
+//BEGINING OF METHOD 
  /*
-  * Task:- The method reads the stream from the passed event, finds the details of all the tracks belonging to the playlist to which the INSERT 
+  * Purpose:- The method reads the stream from the passed event, finds the details of all the tracks belonging to the playlist to which the INSERT 
   * event correseponds and updates the corresponding item (playlist details) in the user-playlist-info.
-  * The method return nothing (void).
-  * Parameters of the method :- 1. A DynamoDB event in the form of a String from the playlist-tracks table for reading the streams.  
+  * Return:- The method return nothing (void).
+  * Arguments of the method :- 1. A DynamoDB event in the form of a String from the playlist-tracks table for reading the streams.  
   */
   private static void handleInsert(String event) {
   	//The NewImage contents lie between 'NewImage' tag and 'SequenceNumber' tag..So extracting the feature details from the event String
@@ -90,7 +90,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   	String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
   	if(newImage.length() == 0) {
   		//A case which corresponds to an erranous case..
-  		myLog.logInfo("Empty newImage!");
+  		myLog.logError("Empty newImage!");
   	}
   	else {
   		//Getting all items of the newImage which are space separated...
@@ -114,26 +114,19 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   		 }
   		 else {
   			 //Notifying the failure of updation..
-  			myLog.logInfo("updateMethod failed to update the table!");
+  			myLog.logError("updateMethod failed to update the table!");
   		 }
   	}
   }
-//                                                    END OF THE METHOD 
+//END OF THE METHOD
+
+//BEGINING OF METHOD 
   /*
    * Task:- The method reads the stream from the passed event, finds the details of all the tracks belonging to the playlist to which the REMOVE 
    * event correseponds and updates the corresponding item (playlist details) in the user-playlist-info.
    * The method return nothing (void).
    * Parameters of the method :- 1. A DynamoDB event in the form of a String from the playlist-tracks table for reading the streams.  
    */
- //                                                   BEGINING OF METHOD 
-  /*
-   * This method handles the REMOVE event for our code.
-   * The method return nothing (void).
-   * Parameters of the method :- 1. A DynamoDB event in the form of a String from the playlist-tracks table for reading the streams.
-   * Task:- The method reads the stream from the passed event, finds the details of all the tracks belonging to the playlist to which the REMOVE 
-   * event correseponds and updates the corresponding item (playlist details) in the user-playlist-info.  
-   */
-  //This method handles the remove case...
   private static void handleRemove(String event) {
 	  	//The OldImage contents lie between 'OldImage' tag and 'SequenceNumber' tag..So extracting the feature details from the event String
 	    String newImageGetter = event.substring(event.indexOf("OldImage"), event.indexOf(", SequenceNumber"));
@@ -164,19 +157,19 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	  		 }
 	  		 else {
 	  			//Notifying the Failed update..
-	  			myLog.logInfo("updateMethod failed to update the table!");
+	  			myLog.logError("updateMethod failed to update the table!");
 	  		 }
 	    }
   }
-//                                                   END OF THE METHOD
+//END OF THE METHOD
+//BEGINING OF THE METHOD 
   /*
-   * Task:- The method takes the map and updates the user-playlist-info table according to the attribute names and the values. Also, the  
+   * Purpose:- The method takes the map and updates the user-playlist-info table according to the attribute names and the values. Also, the  
    * method computes the era (from the release date) and other such variables before updating the table. To update the table, it first reads
    * the previous contents of the concerened item of the table and modifies it then.
-   * The method return int (either 1 = success/ 0 = Failure).
-   * Parameters of the method :- 1. HashMap<String, String> containing the keys = attributes(feature names) and values = value of the featuress.
+   * Return:- The method return int (either 1 = success/ 0 = Failure).
+   * Arguments of the method :- 1. HashMap<String, String> containing the keys = attributes(feature names) and values = value of the featuress.
    */
-//                                                BEGINING OF THE METHOD
   public static int updateTable(HashMap<String, String> map) {
 	  	//Creating an instance of the POJO class UserPlaylistFeatureSet...it takes a Map and initializes the variables via the Map...
 	  	UserPlaylistFeatureSet tuv = new UserPlaylistFeatureSet(map);
@@ -205,11 +198,11 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		HashMap<String, Integer> album_dir = new HashMap<String, Integer>();
 		HashMap<String, Integer> genre_dir = new HashMap<String, Integer>();
 		HashMap<Integer, Integer> era_dir = new HashMap<Integer, Integer>();
-		era_dir.put(0, 0);
-		era_dir.put(1, 0);
-		era_dir.put(2, 0);
-		era_dir.put(3, 0);
-		era_dir.put(4, 0);
+		era_dir.put(fix.ERA1, 0);
+		era_dir.put(fix.ERA2, 0);
+		era_dir.put(fix.ERA3, 0);
+		era_dir.put(fix.ERA4, 0);
+		era_dir.put(fix.ERA5, 0);
 		
 		while(itr.hasNext()) {
 			//Logging the details from each item..
@@ -262,44 +255,10 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		ArrayList<String> artist_list = new ArrayList<String>();
 		ArrayList<String> album_list = new ArrayList<String>();
 		ArrayList<String> genre_list = new ArrayList<String>();
-		for(Map.Entry artistEntry: artist_dir.entrySet()) {
-			//Verifying that the given artist's frequency is above the fix.THRESHOLD or not..
-			double val = (double)(artist_dir.get(artistEntry.getKey().toString())/((double)no_of_tracks))*100;
-			if(val >= fix.ARTIST_THRESHOLD) {
-				artist_list.add(artistEntry.getKey().toString());
-			}
-		}
 		
-		for(Map.Entry albumEntry: album_dir.entrySet()) {
-			//Verifying that the given album's frequency is above the fix.THRESHOLD or not..
-			double val = (double)(album_dir.get(albumEntry.getKey().toString())/((double)no_of_tracks))*100;
-			if(val >= fix.ALBUM_THRESHOLD) {
-				album_list.add(albumEntry.getKey().toString());
-			}
-		}
-		
-		for(Map.Entry genreEntry: genre_dir.entrySet()) {
-			//Verifying that the given genre's frequency is above the fix.THRESHOLD or not..
-			double val = (double)(genre_dir.get(genreEntry.getKey().toString())/((double)no_of_tracks))*100;
-			if(val >= fix.GENRE_THRESHOLD) {
-				genre_list.add(genreEntry.getKey().toString());
-			}
-		}
-		
-		//Making the incomplete lists if any of size 5 to fill in the table to avoid out of bounds error...
-		//As our user-playlist-info table has got exactly 5 columns to fill..
-		while(artist_list.size() < fix.LISTSIZE) {
-			artist_list.add("");
-		}
-		
-		while(album_list.size() < fix.LISTSIZE) {
-			album_list.add("");
-		}
-		
-		while(genre_list.size() < fix.LISTSIZE) {
-			genre_list.add("");
-		}
-		
+		createThresholdList(artist_dir, artist_list, no_of_tracks, fix.ARTIST_THRESHOLD, fix.LISTSIZE);
+		createThresholdList(album_dir, album_list, no_of_tracks, fix.ALBUM_THRESHOLD, fix.LISTSIZE);
+		createThresholdList(genre_dir, genre_list, no_of_tracks, fix.GENRE_THRESHOLD, fix.LISTSIZE);
 		
 		//Finally, updating the user-playlist-info table...
 		Table table = dynamodb.getTable("user-playlist-info");
@@ -325,19 +284,19 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		}
 		catch(Exception e) {
 			//Handling any error during the execution of query..
-			myLog.logInfo("Exception e = "+e);
-			myLog.logInfo("Updation failed!");
+			myLog.logError("Exception e = "+e);
+			myLog.logError("Updation failed!");
 			return 0;
 		}
 		return 1;
   }
-//                                                    END OF THE METHOD
+  //END OF THE METHOD
+  //BEGINING OF THE METHOD 
   /*
-   * Task:- The method takes the map and updates it by adding the placeholders for the update query
-   * The method return nothing (void). It just updates the map given to it as input parameter.
-   * Parameters of the method :- 1. An empty Map<String, String>
+   * Purpose:- The method takes the map and updates it by adding the placeholders for the update query
+   * Return:- The method return nothing (void). It just updates the map given to it as input parameter.
+   * Arguments of the method :- 1. An empty Map<String, String>
    */
-//                                                  BEGINING OF THE METHOD 
 	public static void updatePlaceHolders(Map<String, String> expressionAttributeName) {
 		expressionAttributeName.put("#p1", "no-of-tracks");
 		expressionAttributeName.put("#p2", "playlist-duration");
@@ -363,5 +322,27 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		expressionAttributeName.put("#p22", "era4");
 		expressionAttributeName.put("#p23", "era5");
 	}
+	//END OF THE METHOD
+	//BEGINING OF THE METHOD 
+	/*
+	 * Purpose:- The method takes a HashMap and extracts a list from it of fixed size containing items above a given threshold
+	 * Return:- The method return nothing (void). It just extracts the ArrayList of items with >= threshold.
+	 * Arguments of the method :- 1. HashMap<String, Integer>, 2. ArrayList<String> to be populated 3. int no of tracks 4. int threshold5. int size
+	 */
+	public static void createThresholdList(HashMap<String, Integer> input_map, ArrayList<String> target_list, int no_of_tracks, int threshold, int size) {
+		for(Map.Entry entry: input_map.entrySet()) {
+			//Verifying that the given artist's frequency is above the fix.THRESHOLD or not..
+			double val = (double)(input_map.get(entry.getKey().toString())/((double)no_of_tracks))*100;
+			if(val >= threshold) {
+				target_list.add(entry.getKey().toString());
+			}
+		}
+		
+		//Making the incomplete lists if any of size 5 to fill in the table to avoid out of bounds error...
+		//As our user-playlist-info table has got exactly 5 columns to fill..
+		while(target_list.size() < size) {
+			target_list.add("");
+		}
+	}
 }
-//                                                           END OF CODE
+//END OF CODE
