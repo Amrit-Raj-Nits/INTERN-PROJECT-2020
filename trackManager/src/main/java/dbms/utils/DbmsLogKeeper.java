@@ -20,8 +20,8 @@ public class DbmsLogKeeper{
 		LOGGER.log(Level.FINE, s);
 	}
 	
-	//For making an Severe level log..
-	static public void logSevere(String s) {
+	//For making an Error level log..
+	static public void logError(String s) {
 		LOGGER.log(Level.SEVERE, s);
 	}
 }
