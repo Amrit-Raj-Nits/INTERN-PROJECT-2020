@@ -106,9 +106,9 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   		//Logging the key and value map of newly inserted item as a Map...
   		myLog.logInfo("Map of new Image = "+map.toString());
   		
-  		 //Calling the method to update the details based on the details stored in the map..return 1 if success and 0 if failed.
+  		 //Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
   		 int success = updateTable(map); 	
-  		 if(success == 1) {
+  		 if(success == 0) {
   			//Notifying the successful completion of the transaction..
   			myLog.logInfo("Entry Successful!");
   		 }
@@ -149,9 +149,9 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    	//Logging the key and value map of newly inserted item as  a Map...
 	    	myLog.logInfo("Map of Old Image = "+map.toString());
 	    	
-	    	//Calling the method to update the details based on the details stored in the map..return 1 if success and 0 if failed.
+	    	//Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
 	    	int success = updateTable(map); 	
-	  		 if(success == 1) {
+	  		 if(success == 0) {
 	  			//Notifying the successful completion of the transaction..
 	  			myLog.logInfo("Removal Successful!");
 	  		 }
@@ -167,7 +167,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    * Purpose:- The method takes the map and updates the user-playlist-info table according to the attribute names and the values. Also, the  
    * method computes the era (from the release date) and other such variables before updating the table. To update the table, it first reads
    * the previous contents of the concerened item of the table and modifies it then.
-   * Return:- The method return int (either 1 = success/ 0 = Failure).
+   * Return:- The method return int (either 0 = success/ -1 = Failure).
    * Arguments of the method :- 1. HashMap<String, String> containing the keys = attributes(feature names) and values = value of the featuress.
    */
   public static int updateTable(HashMap<String, String> map) {
@@ -182,7 +182,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		}
 		catch(Exception e) {
 			myLog.logInfo("Error in making connection to DynamoDB. Precise error = "+e);
-			return 0;
+			return -1;
 		}
 		
 		Table playlistTable = dynamodb.getTable("playlist-tracks");
@@ -286,9 +286,9 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			//Handling any error during the execution of query..
 			myLog.logError("Exception e = "+e);
 			myLog.logError("Updation failed!");
-			return 0;
+			return -1;
 		}
-		return 1;
+		return 0;
   }
   //END OF THE METHOD
   //BEGINING OF THE METHOD 
