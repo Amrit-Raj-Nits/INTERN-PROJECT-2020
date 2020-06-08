@@ -34,8 +34,6 @@ public class PlaylistUpdateHandler implements RequestHandler<Object, String> {
 
 //Creating the enum to store the Event types..
 enum EventType{ INSERT, REMOVE, UPDATE}
-//Creating an instance of the fixants class to access the fixants..
-static Constants fix = new Constants();
 
 //Creating an instance of our DbmsLogKeeper class for Logging in this file...
 static DbmsLogKeeper myLog = new DbmsLogKeeper();
@@ -51,7 +49,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		String event = obj.toString();
 
 		//Setting up the cases when the event is not a dynamoDB event..
-		if (event.indexOf("Keys") == fix.INVALID_INDEX || event.indexOf("SequenceNumber") == fix.INVALID_INDEX || event.indexOf("Keys") >= event.indexOf("SequenceNumber")) {
+		if (event.indexOf("Keys") == Constants.INVALID_INDEX || event.indexOf("SequenceNumber") == Constants.INVALID_INDEX || event.indexOf("Keys") >= event.indexOf("SequenceNumber")) {
 			myLog.logError("Invalid Entry!");
 		}
 		else {
@@ -84,7 +82,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   * Return:- The method return nothing (void).
   * Arguments of the method :- 1. A DynamoDB event in the form of a String from the playlist-tracks table for reading the streams.  
   */
-  private static void handleInsert(String event) {
+  private void handleInsert(String event) {
   	//The NewImage contents lie between 'NewImage' tag and 'SequenceNumber' tag..So extracting the feature details from the event String
   	String newImageGetter = event.substring(event.indexOf("NewImage"), event.indexOf(", SequenceNumber"));
   	String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
@@ -107,15 +105,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   		myLog.logInfo("Map of new Image = "+map.toString());
   		
   		 //Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
-  		 int success = updateTable(map); 	
-  		 if(success == 0) {
-  			//Notifying the successful completion of the transaction..
-  			myLog.logInfo("Entry Successful!");
-  		 }
-  		 else {
-  			 //Notifying the failure of updation..
-  			myLog.logError("updateMethod failed to update the table!");
-  		 }
+  		 updateTable(map);
   	}
   }
 //END OF THE METHOD
@@ -127,7 +117,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    * The method return nothing (void).
    * Parameters of the method :- 1. A DynamoDB event in the form of a String from the playlist-tracks table for reading the streams.  
    */
-  private static void handleRemove(String event) {
+  private void handleRemove(String event) {
 	  	//The OldImage contents lie between 'OldImage' tag and 'SequenceNumber' tag..So extracting the feature details from the event String
 	    String newImageGetter = event.substring(event.indexOf("OldImage"), event.indexOf(", SequenceNumber"));
 	    String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
@@ -150,15 +140,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    	myLog.logInfo("Map of Old Image = "+map.toString());
 	    	
 	    	//Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
-	    	int success = updateTable(map); 	
-	  		 if(success == 0) {
-	  			//Notifying the successful completion of the transaction..
-	  			myLog.logInfo("Removal Successful!");
-	  		 }
-	  		 else {
-	  			//Notifying the Failed update..
-	  			myLog.logError("updateMethod failed to update the table!");
-	  		 }
+	    	updateTable(map);
 	    }
   }
 //END OF THE METHOD
@@ -170,7 +152,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    * Return:- The method return int (either 0 = success/ -1 = Failure).
    * Arguments of the method :- 1. HashMap<String, String> containing the keys = attributes(feature names) and values = value of the featuress.
    */
-  public static int updateTable(HashMap<String, String> map) {
+  public void updateTable(HashMap<String, String> map) {
 	  	//Creating an instance of the POJO class UserPlaylistFeatureSet...it takes a Map and initializes the variables via the Map...
 	  	UserPlaylistFeatureSet tuv = new UserPlaylistFeatureSet(map);
 	  	
@@ -182,7 +164,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		}
 		catch(Exception e) {
 			myLog.logInfo("Error in making connection to DynamoDB. Precise error = "+e);
-			return -1;
+			return;
 		}
 		
 		Table playlistTable = dynamodb.getTable("playlist-tracks");
@@ -198,11 +180,11 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		HashMap<String, Integer> album_dir = new HashMap<String, Integer>();
 		HashMap<String, Integer> genre_dir = new HashMap<String, Integer>();
 		HashMap<Integer, Integer> era_dir = new HashMap<Integer, Integer>();
-		era_dir.put(fix.ERA1, 0);
-		era_dir.put(fix.ERA2, 0);
-		era_dir.put(fix.ERA3, 0);
-		era_dir.put(fix.ERA4, 0);
-		era_dir.put(fix.ERA5, 0);
+		era_dir.put(Constants.ERA1, 0);
+		era_dir.put(Constants.ERA2, 0);
+		era_dir.put(Constants.ERA3, 0);
+		era_dir.put(Constants.ERA4, 0);
+		era_dir.put(Constants.ERA5, 0);
 		
 		try{
 		//The Integer.parseInt() and Double.parseDouble() are vulnarable to NumberFormatException..
@@ -226,7 +208,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		}
 	  	catch(NumberFormatException e){
 			myLog.logError(e.toString());
-			return -1;
+			return;
 		}
 		
 		if(no_of_tracks > 0) {
@@ -250,9 +232,9 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		ArrayList<String> album_list = new ArrayList<String>();
 		ArrayList<String> genre_list = new ArrayList<String>();
 		
-		createThresholdList(artist_dir, artist_list, no_of_tracks, fix.ARTIST_THRESHOLD, fix.LISTSIZE);
-		createThresholdList(album_dir, album_list, no_of_tracks, fix.ALBUM_THRESHOLD, fix.LISTSIZE);
-		createThresholdList(genre_dir, genre_list, no_of_tracks, fix.GENRE_THRESHOLD, fix.LISTSIZE);
+		createThresholdList(artist_dir, artist_list, no_of_tracks, Constants.ARTIST_THRESHOLD, Constants.LISTSIZE);
+		createThresholdList(album_dir, album_list, no_of_tracks, Constants.ALBUM_THRESHOLD, Constants.LISTSIZE);
+		createThresholdList(genre_dir, genre_list, no_of_tracks, Constants.GENRE_THRESHOLD, Constants.LISTSIZE);
 		
 		//Finally, updating the user-playlist-info table...
 		Table table = dynamodb.getTable("user-playlist-info");
@@ -280,9 +262,8 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			//Handling any error during the execution of query..
 			myLog.logError("Exception e = "+e);
 			myLog.logError("Updation failed!");
-			return -1;
+			return;
 		}
-		return 0;
   }
   //END OF THE METHOD
   //BEGINING OF THE METHOD 
@@ -291,7 +272,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    * Return:- The method return nothing (void). It just updates the map given to it as input parameter.
    * Arguments of the method :- 1. An empty Map<String, String>
    */
-	public static void updatePlaceHoldersMap(Map<String, String> expressionAttributeName) {
+	public void updatePlaceHoldersMap(Map<String, String> expressionAttributeName) {
 		expressionAttributeName.put("#p1", "no-of-tracks");
 		expressionAttributeName.put("#p2", "playlist-duration");
 		expressionAttributeName.put("#p3", "album-rank1");
@@ -319,13 +300,13 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	//END OF THE METHOD
 	//BEGINING OF THE METHOD 
 	/*
-	 * Purpose:- The method takes a HashMap and extracts a list from it of fixed size containing items above a given threshold
+	 * Purpose:- The method takes a HashMap and extracts a list from it of Constantsed size containing items above a given threshold
 	 * Return:- The method return nothing (void). It just extracts the ArrayList of items with >= threshold.
 	 * Arguments of the method :- 1. HashMap<String, Integer>, 2. ArrayList<String> to be populated 3. int no of tracks 4. int threshold5. int size
 	 */
-	public static void createThresholdList(HashMap<String, Integer> input_map, ArrayList<String> target_list, int no_of_tracks, int threshold, int size) {
+	public void createThresholdList(HashMap<String, Integer> input_map, ArrayList<String> target_list, int no_of_tracks, int threshold, int size) {
 		for(Map.Entry entry: input_map.entrySet()) {
-			//Verifying that the given artist's frequency is above the fix.THRESHOLD or not..
+			//Verifying that the given artist's frequency is above the Constants.THRESHOLD or not..
 			double val = (double)(input_map.get(entry.getKey().toString())/((double)no_of_tracks))*100;
 			if(val >= threshold) {
 				target_list.add(entry.getKey().toString());
@@ -345,7 +326,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	 * Return:- The method return nothing (void).
 	 * Arguments of the method :- 1. HashMap<String, Integer> , 2. int year
 	 */
-	public static void computeEra(int eraYear, HashMap<Integer, Integer> era_dir){
+	public void computeEra(int eraYear, HashMap<Integer, Integer> era_dir){
 		if(eraYear >= 1920 && eraYear <=1940) {
 			era_dir.put(0, era_dir.get(0)+1);
 		}
