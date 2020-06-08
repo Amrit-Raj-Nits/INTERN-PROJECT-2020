@@ -212,21 +212,8 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			//Extracting the year for classifying it into an era..
 			int eraYear = Integer.parseInt(eraTemp[2]);
 			//Deciding the era of each track based on the release year..
-			if(eraYear >= 1920 && eraYear <=1940) {
-				era_dir.put(0, era_dir.get(0)+1);
-			}
-			else if(eraYear > 1940 && eraYear <=1960) {
-				era_dir.put(1, era_dir.get(1)+1);
-			}
-			else if(eraYear > 1960 && eraYear <=1980) {
-				era_dir.put(2, era_dir.get(2)+1);
-			}
-			else if(eraYear > 1980 && eraYear <=2000) {
-				era_dir.put(3, era_dir.get(3)+1);
-			}
-			else{
-				era_dir.put(4, era_dir.get(4)+1);
-			}
+			computeEra(eraYear, era_dir);
+			
 			artist_dir.put(temp.get("artist").toString(), artist_dir.getOrDefault(temp.get("artist").toString(), 0)+1);
 			album_dir.put(temp.get("album").toString(), album_dir.getOrDefault(temp.get("album").toString(), 0)+1);
 			genre_dir.put(temp.get("genre").toString(), genre_dir.getOrDefault(temp.get("genre").toString(), 0)+1);
@@ -342,6 +329,30 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		//As our user-playlist-info table has got exactly 5 columns to fill..
 		while(target_list.size() < size) {
 			target_list.add("");
+		}
+	}
+	//END OF THE METHOD
+	//BEGINING OF THE METHOD 
+	/*
+	 * Purpose:- The method takes a HashMap and an year in integer form and based on the year bracket updates the HashMap.
+	 * Return:- The method return nothing (void).
+	 * Arguments of the method :- 1. HashMap<String, Integer> , 2. int year
+	 */
+	public static void computeEra(int eraYear, HashMap<Integer, Integer> era_dir){
+		if(eraYear >= 1920 && eraYear <=1940) {
+			era_dir.put(0, era_dir.get(0)+1);
+		}
+		else if(eraYear > 1940 && eraYear <=1960) {
+			era_dir.put(1, era_dir.get(1)+1);
+		}
+		else if(eraYear > 1960 && eraYear <=1980) {
+			era_dir.put(2, era_dir.get(2)+1);
+		}
+		else if(eraYear > 1980 && eraYear <=2000) {
+			era_dir.put(3, era_dir.get(3)+1);
+		}
+		else{
+			era_dir.put(4, era_dir.get(4)+1);
 		}
 	}
 }
