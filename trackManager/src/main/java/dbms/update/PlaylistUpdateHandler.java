@@ -204,22 +204,29 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		era_dir.put(fix.ERA4, 0);
 		era_dir.put(fix.ERA5, 0);
 		
-		while(itr.hasNext()) {
-			//Logging the details from each item..
-			Item temp = (Item)itr.next();
-			myLog.logInfo("Item = "+temp.toString());
-			String eraTemp[] = temp.get("release").toString().split(" "); //In the format date month year...so 0 = date, 1 = month, 2 = year..
-			//Extracting the year for classifying it into an era..
-			int eraYear = Integer.parseInt(eraTemp[2]);
-			//Deciding the era of each track based on the release year..
-			computeEra(eraYear, era_dir);
-			
-			artist_dir.put(temp.get("artist").toString(), artist_dir.getOrDefault(temp.get("artist").toString(), 0)+1);
-			album_dir.put(temp.get("album").toString(), album_dir.getOrDefault(temp.get("album").toString(), 0)+1);
-			genre_dir.put(temp.get("genre").toString(), genre_dir.getOrDefault(temp.get("genre").toString(), 0)+1);
-			no_of_tracks++; //Counting the number of tracks..
-			track_duration_sum += (int)Double.parseDouble(temp.get("duration").toString()); //Summing the duration of all the tracks..
-			track_popularity_sum += (int)Double.parseDouble(temp.get("popularity").toString()); //Summing the rating of all the tracks for avg later..
+		try{
+		//The Integer.parseInt() and Double.parseDouble() are vulnarable to NumberFormatException..
+			while(itr.hasNext()) {
+				//Logging the details from each item..
+				Item temp = (Item)itr.next();
+				myLog.logInfo("Item = "+temp.toString());
+				String eraTemp[] = temp.get("release").toString().split(" "); //In the format date month year...so 0 = date, 1 = month, 2 = year..
+				//Extracting the year for classifying it into an era..
+				int eraYear = Integer.parseInt(eraTemp[2]);
+				//Deciding the era of each track based on the release year..
+				computeEra(eraYear, era_dir);
+
+				artist_dir.put(temp.get("artist").toString(), artist_dir.getOrDefault(temp.get("artist").toString(), 0)+1);
+				album_dir.put(temp.get("album").toString(), album_dir.getOrDefault(temp.get("album").toString(), 0)+1);
+				genre_dir.put(temp.get("genre").toString(), genre_dir.getOrDefault(temp.get("genre").toString(), 0)+1);
+				no_of_tracks++; //Counting the number of tracks..
+				track_duration_sum += (int)Double.parseDouble(temp.get("duration").toString()); //Summing the duration of all the tracks..
+				track_popularity_sum += (int)Double.parseDouble(temp.get("popularity").toString()); //Summing the rating of all the tracks for avg later..
+			}
+		}
+	  	catch(NumberFormatException e){
+			myLog.logError(e);
+			return -1;
 		}
 		
 		if(no_of_tracks > 0) {
