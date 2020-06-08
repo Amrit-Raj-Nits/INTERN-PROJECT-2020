@@ -225,7 +225,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 			}
 		}
 	  	catch(NumberFormatException e){
-			myLog.logError(e);
+			myLog.logError(e.toString());
 			return -1;
 		}
 		
