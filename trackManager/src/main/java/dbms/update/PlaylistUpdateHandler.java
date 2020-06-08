@@ -265,7 +265,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 		//Map contains the value of the placeholders representing the attributes in the query to come..
 		Map<String, String> expressionAttributeName = new HashMap<String, String>();
 		//Updating the map with placeholders..
-		updatePlaceHolders(expressionAttributeName);
+		updatePlaceHoldersMap(expressionAttributeName);
 		
 		//Update statement..
 		UpdateItemSpec updatedItem = new UpdateItemSpec().withPrimaryKey("uid", tuv.getUid(), "pasin", tuv.getPasin())
@@ -297,7 +297,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    * Return:- The method return nothing (void). It just updates the map given to it as input parameter.
    * Arguments of the method :- 1. An empty Map<String, String>
    */
-	public static void updatePlaceHolders(Map<String, String> expressionAttributeName) {
+	public static void updatePlaceHoldersMap(Map<String, String> expressionAttributeName) {
 		expressionAttributeName.put("#p1", "no-of-tracks");
 		expressionAttributeName.put("#p2", "playlist-duration");
 		expressionAttributeName.put("#p3", "album-rank1");
