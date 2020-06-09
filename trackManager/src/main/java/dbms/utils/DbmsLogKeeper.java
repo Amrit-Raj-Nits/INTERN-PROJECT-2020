@@ -4,6 +4,7 @@ package dbms.utils;
  	trackManager.java file. This stores and shows the logs which 
  	come up during the execution of the saild code via a lambda 
  	function when there is a dynamoDB Event.
+	--
  */
 import java.util.logging.Level;
 import java.util.logging.Logger;
