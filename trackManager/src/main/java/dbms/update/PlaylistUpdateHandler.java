@@ -32,7 +32,7 @@ import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 public class PlaylistUpdateHandler implements RequestHandler<Object, String> {
 
-//Creating the enum to store the Event types..
+//Creating the enum to store the Event types..Will store all 3 possible events.
 enum EventType{ INSERT, REMOVE, UPDATE}
 
 //Creating an instance of our DbmsLogKeeper class for Logging in this file...
