@@ -2,11 +2,19 @@
 
 MAJOR CLASSES:- 
 
-1. Constants.java - Constants declarations.
-2. DbmsLogKeeper.java - For maintaining the Log.
-3. PlaylistUpdateHandler.java - Main Handler method for the Lambda Function.
-4. TableUpdateVariables.java
-5. POM.XML - Dependencies list of maven and build specifications
+trackManager:- 
+  1. Constants.java - Constants declarations.
+  2. DbmsLogKeeper.java - For maintaining the Log.
+  3. PlaylistUpdateHandler.java - Main Handler method for the Lambda Function.
+  4. TableUpdateVariables.java
+  5. POM.XML - Dependencies list of maven and build specifications
+ 
+ RecommendPlaylist:-
+  1. Constants.java - Constants declarations.
+  2. DbmsLogKeeper.java - For maintaining the Log.
+  3. playlistRecommender.java - Recommends playlist in sorted order if weighted index.
+  4. PlaylistSort.java - Implements the Comparator class for sorting.
+  5. POM.XML - Dependencies list of maven and build specifications
 
 uses JDK - 9.0 for Compiling the code.
 all the maven dependencies are up-to date as on 4th June, 2020.
