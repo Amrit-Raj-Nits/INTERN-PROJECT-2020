@@ -28,4 +28,5 @@ public class Constants{
 	public static final int POPULARITY_CONSTANT = 100;
 	
 	public static final int NEGATIVE_LAST_PLAYED = -1;
+	public static final int DURATION_CONSTANT = 2;
 }
