@@ -52,6 +52,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			dynamodb = new DynamoDB(trackClient);
 		}
 		catch(Exception e) {
+			myLog.logError("Error --> "+e);
 			return "Failed to create a Client!";
 		}
 
@@ -65,19 +66,25 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		
 		//Now we will generate the score for all the Items in the ArrayList ..the scores will correspond to each playlist index wise in playlistItems
 		ArrayList<Integer> scores = new ArrayList<Integer>();
-		generateScores(scores, trackDetailsMap, playlistItems);
+		ArrayList<Integer> tieBreakerScores = new ArrayList<Integer>();
+		generateScores(scores, tieBreakerScores, trackDetailsMap, playlistItems);
 		
 		//An ArrayList of names of playlist..
 		ArrayList<String> names = new ArrayList<String>();
 		getNames(names, playlistItems);
 		myLog.logInfo("Playlists in the given uid = "+names);
 		myLog.logInfo("Scores of corresponding Playlists = "+scores);
+		myLog.logInfo("Tie Breaker Scores of corresponding Playlists = "+tieBreakerScores);
 		
 		//Now we sort the playlistItems ArrayList based on scores ArrayList using a comparator..
-		//Creating a map to store key = name of playlist and value = score..
-		HashMap<String, Integer> playlistScoreMap = new HashMap<String, Integer>();
+		//Creating a map to store key = name of playlist and value = ArrayList<Integer> with 2 values each, at index 0 = score, 1 = tieBreakerScore..
+		HashMap<String, ArrayList<Integer>> playlistScoreMap = new HashMap<String, ArrayList<Integer>>();
 		for(int i=0; i<names.size(); i++) {
-			playlistScoreMap.put(names.get(i), scores.get(i));
+			ArrayList<Integer> mapFiller = new ArrayList<Integer>();
+			//Error debugging..
+			mapFiller.add(scores.get(i));
+			mapFiller.add(tieBreakerScores.get(i));
+			playlistScoreMap.put(names.get(i), mapFiller);
 		}
 		PlaylistSort sorter = new PlaylistSort(playlistScoreMap);
 		Collections.sort(names, sorter);
@@ -171,10 +178,10 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 	}
 	/*
 	 * Purpose - To find the scores of a all playlists for a given uid and with respect to a given asin track
-	 * Arguments - 1. ArrayList<Integer> 2.HashMap<String, String> containing details of the track 3. ArrayList<Item> containing all playlists for a uid
+	 * Arguments - 1. 2 X ArrayList<Integer> 2.HashMap<String, String> containing details of the track 3. ArrayList<Item> containing all playlists for a uid
 	 * Returns - void, populates the scores ArrayList<Integer>  
 	*/
-	public void generateScores(ArrayList<Integer> scores, HashMap<String, String> trackDetailsMap, ArrayList<Item> playlistItems) {
+	public void generateScores(ArrayList<Integer> scores, ArrayList<Integer> tieBreakerScores, HashMap<String, String> trackDetailsMap, ArrayList<Item> playlistItems) {
 		//Storing the track features into variables..
 		String trackGenre = trackDetailsMap.get("genre");
 		String trackArtist = trackDetailsMap.get("artist");
@@ -184,7 +191,6 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		int trackYear = Integer.parseInt(trackDetailsMap.get("release"));
 		
 		//To break the tie, we would need the least four priority feature's score separately, so we will use a separate ArrayList to store it..
-		ArrayList<Integer> tieBreakerScores = new ArrayList<Integer>();
 		//Iterating over all the playlistItems
 		for(int i=0; i<playlistItems.size(); i++) {
 			int score = 0;
@@ -208,12 +214,13 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			score += getPopularityScore(trackPopularity, temp);
 			tieBreakerScore += getPopularityScore(trackPopularity, temp);
 			//Comparing priority 8 item..(Duration)..
-			//..To be added later..
+			score += getDurationScore(temp);
+			tieBreakerScore += getDurationScore(temp);
 			
-
 			myLog.logInfo("Total Score for playlist at index = "+i+" is = "+score);
 			myLog.logInfo("Total Tie Breaker Score for playlist at index = "+i+" is = "+tieBreakerScore);
 			scores.add(score);
+			tieBreakerScores.add(tieBreakerScore);
 		}
 	}
 	/*
@@ -408,6 +415,18 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			score = 0;
 		}
 		myLog.logInfo("Score of Popularity Match is = "+score);
+		return score;
+	}
+	/*
+	 *  Purpose - To get the scores for Duration proximity
+	 *  Arguments - 1. Instance of an Item
+	 *  Returns - int - Score 
+	*/
+	public int getDurationScore(Item temp) {
+		int score = 0;
+		int duration = temp.getInt("playlist-duration");
+		score += duration * Constants.DURATION_CONSTANT;
+		myLog.logInfo("Score of Duration Match is = "+score);
 		return score;
 	}
 }
