@@ -97,7 +97,13 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		//--->Some code here..
 
 		myLog.logInfo("Ranked Playlists = "+show);
-		return "Success!-->"+show;
+		//If there is atleast one playlist in the User's account...else ask him/her to create a playlist..
+		if(show.length()>0) {
+			return "Success!-->"+show;
+		}
+		else {
+			return "Success--> You do not have any existing playlists, Kindly create one.";
+		}
 	}
 	/*
 	 * Purpose - To extract asin and uid from an Event Object.
@@ -283,20 +289,26 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		
 		int totalEra = era1+era2+era3+era4+era5;
 		
-		if(trackYear >= 1920 && trackYear <=1940) {
-			percentage = (double)era1/(double)totalEra; 
+		//To handle divide by zero error..
+		if(totalEra > 0) {
+			if(trackYear >= 1920 && trackYear <=1940) {
+				percentage = (double)era1/(double)totalEra; 
+			}
+			else if(trackYear > 1940 && trackYear <=1960) {
+				percentage = (double)era2/(double)totalEra;
+			}
+			else if(trackYear > 1960 && trackYear <=1980) {
+				percentage = (double)era3/(double)totalEra;
+			}
+			else if(trackYear > 1980 && trackYear <=2000) {
+				percentage = (double)era4/(double)totalEra;
+			}
+			else{
+				percentage = (double)era5/(double)totalEra;
+			}
 		}
-		else if(trackYear > 1940 && trackYear <=1960) {
-			percentage = (double)era2/(double)totalEra;
-		}
-		else if(trackYear > 1960 && trackYear <=1980) {
-			percentage = (double)era3/(double)totalEra;
-		}
-		else if(trackYear > 1980 && trackYear <=2000) {
-			percentage = (double)era4/(double)totalEra;
-		}
-		else{
-			percentage = (double)era5/(double)totalEra;
+		else {
+			percentage = 0;
 		}
 		
 		score += Constants.PRIORITY_2_CONSTANT * percentage;
@@ -376,27 +388,34 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 	public int getLastPlayedScore(Item temp) {
 		int score = 0;
 		int lastPlayedValue = 0;
-		if(Integer.parseInt(temp.get("last-played").toString()) != Constants.NEGATIVE_LAST_PLAYED) {
-			//The case in which the playlist is non - empty. When empty, value == -1 and should be alloted zero..
-			if(Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_LOWER_THRESHOLD) {
-				lastPlayedValue = Constants.LAST_PLAYED_LOWER_POSITIVE;
-			}
-			else if(Integer.parseInt(temp.get("last-played").toString()) > Constants.LAST_PLAYED_LOWER_THRESHOLD && 
-					Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_MIDDLE_THRESHOLD){
-				
-				lastPlayedValue = Constants.LAST_PLAYED_MIDDLE_POSITIVE;
-			}
-			else if(Integer.parseInt(temp.get("last-played").toString()) > Constants.LAST_PLAYED_MIDDLE_THRESHOLD && 
-					Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_UPPER_THRESHOLD) {
-				
-				lastPlayedValue = Constants.LAST_PLAYED_UPPER_POSITIVE;
+		//Handling the number format exception during parsing to int..
+		try {
+			if(Integer.parseInt(temp.get("last-played").toString()) != Constants.NEGATIVE_LAST_PLAYED) {
+				//The case in which the playlist is non - empty. When empty, value == -1 and should be alloted zero..
+				if(Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_LOWER_THRESHOLD) {
+					lastPlayedValue = Constants.LAST_PLAYED_LOWER_POSITIVE;
+				}
+				else if(Integer.parseInt(temp.get("last-played").toString()) > Constants.LAST_PLAYED_LOWER_THRESHOLD && 
+						Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_MIDDLE_THRESHOLD){
+					
+					lastPlayedValue = Constants.LAST_PLAYED_MIDDLE_POSITIVE;
+				}
+				else if(Integer.parseInt(temp.get("last-played").toString()) > Constants.LAST_PLAYED_MIDDLE_THRESHOLD && 
+						Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_UPPER_THRESHOLD) {
+					
+					lastPlayedValue = Constants.LAST_PLAYED_UPPER_POSITIVE;
+				}
+				else {
+					lastPlayedValue = Constants.LAST_PLAYED_NEGATIVE;
+				}
 			}
 			else {
-				lastPlayedValue = Constants.LAST_PLAYED_NEGATIVE;
+				lastPlayedValue = 0;
 			}
 		}
-		else {
-			lastPlayedValue = 0;
+		catch(NumberFormatException e) {
+			myLog.logError("Number Format Exception occured = "+e);
+			return 0;
 		}
 		score += Constants.PRIORITY_5_CONSTANT * lastPlayedValue;
 		myLog.logInfo("Score of Last-Played Match is = "+score);
