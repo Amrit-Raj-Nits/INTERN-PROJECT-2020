@@ -19,4 +19,11 @@ public class Constants{
 	public static final int VALUE3 = 3;
 	public static final int VALUE4 = 2;
 	public static final int VALUE5 = 1;
+	
+	public static final int LAST_PLAYED_THRESHOLD = 10;
+	public static final int LAST_PLAYED_POSITIVE = 10;
+	public static final int LAST_PLAYED_NEGATIVE = -10;
+	
+	public static final int NO_OF_TRACKS_CONSTANT = 5;
+	public static final int POPULARITY_CONSTANT = 100;
 }
