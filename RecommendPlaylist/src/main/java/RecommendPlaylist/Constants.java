@@ -26,4 +26,6 @@ public class Constants{
 	
 	public static final int NO_OF_TRACKS_CONSTANT = 5;
 	public static final int POPULARITY_CONSTANT = 100;
+	
+	public static final int NEGATIVE_LAST_PLAYED = -1;
 }
