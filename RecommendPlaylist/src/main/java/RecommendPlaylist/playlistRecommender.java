@@ -2,7 +2,7 @@ package RecommendPlaylist;
 //Basic utilities import..
 import java.io.*;
 import java.util.*;
-
+import utils.recommendPlaylistLogKeeper;
 //AWS Specific imports...
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.LambdaLogger;
@@ -30,6 +30,7 @@ import com.amazonaws.services.dynamodbv2.model.ReturnConsumedCapacity;
 import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 public class playlistRecommender implements RequestHandler<Object, String> {
+	recommendPlaylistLogKeeper myLog = new recommendPlaylistLogKeeper();
 	/*
 	 * Purpose - This is the main method that is called by the Lambda function on API trigger.
 	 * Arguments - 1. Event object obj consisting of asin and uid 2. Context
@@ -41,7 +42,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		credentials = getCredentials(obj);
 		String asin = credentials.get(0);
 		String uid = credentials.get(1);
-		
+		myLog.logInfo("Asin = "+asin+" Uid = "+uid);
 		//Now we will get the features of the track with the given asin and store it into a HashMap..
 		HashMap<String, String> trackDetailsMap = new HashMap<String, String>();
 		//Creating the dynamodb instance and client instance..
@@ -56,6 +57,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 
 		//Getting the track info from the database and storing it into the trackDetailsMap..
 		getTrackDetails(trackDetailsMap, dynamodb, asin);
+		myLog.logInfo("Track Details = "+trackDetailsMap);
 		
 		//Getting the list of all the playlists with the given uid and storing into a playlistItems..
 		ArrayList<Item> playlistItems = new ArrayList<Item>();
@@ -68,6 +70,9 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		//An ArrayList of names of playlist..
 		ArrayList<String> names = new ArrayList<String>();
 		getNames(names, playlistItems);
+		myLog.logInfo("Playlists in the given uid = "+names);
+		myLog.logInfo("Scores of corresponding Playlists = "+scores);
+		
 		//Now we sort the playlistItems ArrayList based on scores ArrayList using a comparator..
 		//Creating a map to store key = name of playlist and value = score..
 		HashMap<String, Integer> playlistScoreMap = new HashMap<String, Integer>();
@@ -83,6 +88,8 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		}
 		//Now we will display the playlists in the order of preference..
 		//--->Some code here..
+
+		myLog.logInfo("Ranked Playlists = "+show);
 		return "Success!-->"+show;
 	}
 	/*
@@ -135,6 +142,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 				}
 			}
 		  	catch(Exception e) {
+				myLog.logError("Exception = "+e);
 				return;
 			}
 	}
@@ -202,8 +210,9 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			//Comparing priority 8 item..(Duration)..
 			//..To be added later..
 			
-			System.out.println("Score for playlist No "+i+" = "+score);
-			System.out.println("Score for Tie Breaking No "+i+" = "+tieBreakerScore);
+
+			myLog.logInfo("Total Score for playlist at index = "+i+" is = "+score);
+			myLog.logInfo("Total Tie Breaker Score for playlist at index = "+i+" is = "+tieBreakerScore);
 			scores.add(score);
 		}
 	}
@@ -217,7 +226,6 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			Item temp = playlistItems.get(i);
 			String playlistName = temp.get("playlist-name").toString();
 			names.add(playlistName);
-			System.out.println("Name no "+i+" = "+playlistName);
 		}
 	}
 	/*
@@ -249,7 +257,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			score += Constants.PRIORITY_1_CONSTANT * Constants.VALUE5;
 		}
 		
-		System.out.println("Score after genre matching = "+score);
+		myLog.logInfo("Score of Genre Match is = "+score);
 		return score;
 	}
 	/*
@@ -286,7 +294,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		
 		score += Constants.PRIORITY_2_CONSTANT * percentage;
 
-		System.out.println("Score after era matching = "+score);
+		myLog.logInfo("Score of Era Match is = "+score);
 		return score;
 	}
 	/*
@@ -318,7 +326,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			score += Constants.PRIORITY_3_CONSTANT * Constants.VALUE5;
 		}
 		
-		System.out.println("Score after artist matching = "+score);
+		myLog.logInfo("Score of Artist Match is = "+score);
 		return score;
 	}
 	/*
@@ -350,7 +358,7 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 			score += Constants.PRIORITY_4_CONSTANT * Constants.VALUE5;
 		}
 		
-		System.out.println("Score after album matching = "+score);
+		myLog.logInfo("Score of Album Match is = "+score);
 		return score;
 	}
 	/*
@@ -361,14 +369,20 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 	public int getLastPlayedScore(Item temp) {
 		int score = 0;
 		int lastPlayedValue = 0;
-		if(Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_THRESHOLD) {
-			lastPlayedValue = Constants.LAST_PLAYED_POSITIVE;
+		if(Integer.parseInt(temp.get("last-played").toString()) != Constants.NEGATIVE_LAST_PLAYED) {
+			//The case in which the playlist is non - empty. When empty, value == -1 and should be alloted zero.. 
+			if(Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_THRESHOLD) {
+				lastPlayedValue = Constants.LAST_PLAYED_POSITIVE;
+			}
+			else {
+				lastPlayedValue = Constants.LAST_PLAYED_NEGATIVE;
+			}
 		}
 		else {
-			lastPlayedValue = Constants.LAST_PLAYED_NEGATIVE;
+			lastPlayedValue = 0;
 		}
 		score += Constants.PRIORITY_5_CONSTANT * lastPlayedValue;
-		System.out.println("Score after last played matching = "+score);
+		myLog.logInfo("Score of Last-Played Match is = "+score);
 		return score;
 	}
 	/*
@@ -380,13 +394,20 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		int score = 0;
 		int popularity = Integer.parseInt(temp.get("popularity").toString());
 		//To avoid divide by zero and to ensure denominator is not less than 1..
-		if(Math.abs(trackPopularity - popularity) > 1) {
-			score += (double)(1/(double)(Math.abs(trackPopularity - popularity))) * Constants.POPULARITY_CONSTANT;
+		if(popularity != 0) {
+			// If the playlist is not empty, it will have a non - zero popularity..
+			if(Math.abs(trackPopularity - popularity) > 1) {
+				score += (double)(1/(double)(Math.abs(trackPopularity - popularity))) * Constants.POPULARITY_CONSTANT;
+			}
+			else {
+				score += Constants.POPULARITY_CONSTANT;
+			}
 		}
 		else {
-			score += Constants.POPULARITY_CONSTANT;
+			// For empty playlist, the popularity is equal to zero..
+			score = 0;
 		}
-		System.out.println("Popularity Score = "+score);
+		myLog.logInfo("Score of Popularity Match is = "+score);
 		return score;
 	}
 }
