@@ -20,8 +20,12 @@ public class Constants{
 	public static final int VALUE4 = 2;
 	public static final int VALUE5 = 1;
 	
-	public static final int LAST_PLAYED_THRESHOLD = 10;
-	public static final int LAST_PLAYED_POSITIVE = 10;
+	public static final int LAST_PLAYED_LOWER_THRESHOLD = 10;
+	public static final int LAST_PLAYED_MIDDLE_THRESHOLD = 20;
+	public static final int LAST_PLAYED_UPPER_THRESHOLD = 30;
+	public static final int LAST_PLAYED_LOWER_POSITIVE = 10;
+	public static final int LAST_PLAYED_MIDDLE_POSITIVE = 2;
+	public static final int LAST_PLAYED_UPPER_POSITIVE = 1;
 	public static final int LAST_PLAYED_NEGATIVE = -10;
 	
 	public static final int NO_OF_TRACKS_CONSTANT = 5;
