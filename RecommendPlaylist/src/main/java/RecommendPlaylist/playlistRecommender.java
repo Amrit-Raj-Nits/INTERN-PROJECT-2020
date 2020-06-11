@@ -377,9 +377,19 @@ public class playlistRecommender implements RequestHandler<Object, String> {
 		int score = 0;
 		int lastPlayedValue = 0;
 		if(Integer.parseInt(temp.get("last-played").toString()) != Constants.NEGATIVE_LAST_PLAYED) {
-			//The case in which the playlist is non - empty. When empty, value == -1 and should be alloted zero.. 
-			if(Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_THRESHOLD) {
-				lastPlayedValue = Constants.LAST_PLAYED_POSITIVE;
+			//The case in which the playlist is non - empty. When empty, value == -1 and should be alloted zero..
+			if(Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_LOWER_THRESHOLD) {
+				lastPlayedValue = Constants.LAST_PLAYED_LOWER_POSITIVE;
+			}
+			else if(Integer.parseInt(temp.get("last-played").toString()) > Constants.LAST_PLAYED_LOWER_THRESHOLD && 
+					Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_MIDDLE_THRESHOLD){
+				
+				lastPlayedValue = Constants.LAST_PLAYED_MIDDLE_POSITIVE;
+			}
+			else if(Integer.parseInt(temp.get("last-played").toString()) > Constants.LAST_PLAYED_MIDDLE_THRESHOLD && 
+					Integer.parseInt(temp.get("last-played").toString()) <= Constants.LAST_PLAYED_UPPER_THRESHOLD) {
+				
+				lastPlayedValue = Constants.LAST_PLAYED_UPPER_POSITIVE;
 			}
 			else {
 				lastPlayedValue = Constants.LAST_PLAYED_NEGATIVE;
