@@ -2,9 +2,12 @@
  * This class has been defined to store the constants.
  * The constants are public and can directly be accessed without a getter method.
  */
-package RecommendPlaylist;
+package recommendplaylist;
 public class Constants{
 	//Declaring the variables..
+	public static final String TABLE_NAME1 = "track-repository";
+	public static final String TABLE_NAME2 = "user-playlist-info";
+	
 	public static final int PRIORITY_1_CONSTANT = 800;
 	public static final int PRIORITY_2_CONSTANT = 700;
 	public static final int PRIORITY_3_CONSTANT = 600;
@@ -33,4 +36,7 @@ public class Constants{
 	
 	public static final int NEGATIVE_LAST_PLAYED = -1;
 	public static final int DURATION_CONSTANT = 2;
+	
+	public static final int SCORES_INDEX = 0;
+	public static final int TIE_INDEX = 1;
 }
