@@ -105,8 +105,17 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   		//Logging the key and value map of newly inserted item as a Map...
   		myLog.logInfo("Map of new Image = "+map.toString());
   		
-  		 //Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
-  		 updateTable(map);
+  		//Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
+  		updateTable(map);
+  		String remainingEvent = event.substring(event.indexOf(", SequenceNumber")+16, event.length());
+    	myLog.logInfo("Remaining Event = "+remainingEvent);
+    	if(remainingEvent.indexOf("NewImage") >= 0) {
+    		//We have one more event...so we recurssively call the handleRemove()..
+    		handleInsert(remainingEvent);
+    	}
+    	else {
+    		myLog.logInfo("All the events processed!");
+    	}
   	}
   }
 //END OF THE METHOD
