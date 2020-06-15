@@ -32,14 +32,14 @@ import com.amazonaws.services.dynamodbv2.model.ReturnValue;
 
 public class PlaylistUpdateHandler implements RequestHandler<Object, String> {
 
-//Creating the enum to store the Event types..Will store all 3 possible events.
+//Creating the enum to store the Event types..
 enum EventType{ INSERT, REMOVE, UPDATE}
 
 //Creating an instance of our DbmsLogKeeper class for Logging in this file...
 static DbmsLogKeeper myLog = new DbmsLogKeeper();
 
   public String handleRequest(Object obj, Context context) {
-	//Logging the begining of the LOG..  
+	//Logging the beginning of the LOG..  
   	myLog.logInfo("*** LOGGING STARTS FOR HANDLER.JAVA ***");
   		//Logging the event details..
   		myLog.logInfo("Event details = "+ obj.toString());
@@ -141,6 +141,17 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    	
 	    	//Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
 	    	updateTable(map);
+	    	//Now we will check for multiple deletions from different playlists simultaniously..
+	    	String remainingEvent = event.substring(event.indexOf(newImageGetter)+1, event.length());
+	    	myLog.logInfo("Remaining Event = "+remainingEvent);
+		// Checking if there are more events to delete..
+	    	if(remainingEvent.indexOf("OldImage") >= 0) {
+	    		//We have one more event...so we recurssively call the handleRemove()..
+	    		handleRemove(remainingEvent);
+	    	}
+	    	else {
+	    		myLog.logInfo("All the events processed!");
+	    	}
 	    }
   }
 //END OF THE METHOD
