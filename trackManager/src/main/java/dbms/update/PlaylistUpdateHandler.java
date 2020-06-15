@@ -84,7 +84,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   */
   private void handleInsert(String event) {
   	//The NewImage contents lie between 'NewImage' tag and 'SequenceNumber' tag..So extracting the feature details from the event String
-  	String newImageGetter = event.substring(event.indexOf("NewImage"), event.indexOf(", SequenceNumber"));
+  	String newImageGetter = event.substring(event.indexOf("NewImage"), event.indexOf(", SequenceNumber")-1);
   	String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
   	if(newImage.length() == 0) {
   		//A case which corresponds to an erranous case..
@@ -92,13 +92,14 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
   	}
   	else {
   		//Getting all items of the newImage which are space separated...
-  		String newImageItems[] = newImage.split(", ");
+  		//This assumes that NO String data in the event contains "}, " as substring.. 
+  		String newImageItems[] = newImage.split("}, ");
   		//Creating a hashmap consisting of Keys = attribute names and values = Attribute value..
   		HashMap<String, String> map = new HashMap<String, String>();
   		//Separating the attribute id and value for each feature which are originally in the form of 'key=value'..
   		for(String item : newImageItems) {
   			String tempId = item.substring(0, item.indexOf("="));
-  			String tempValue = item.substring(item.indexOf("=", item.indexOf("=")+1)+1, item.length()-1);
+  			String tempValue = item.substring(item.indexOf("=", item.indexOf("=")+1)+1, item.length());
   			map.put(tempId, tempValue);
   		}
   		//Logging the key and value map of newly inserted item as a Map...
@@ -119,7 +120,7 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
    */
   private void handleRemove(String event) {
 	  	//The OldImage contents lie between 'OldImage' tag and 'SequenceNumber' tag..So extracting the feature details from the event String
-	    String newImageGetter = event.substring(event.indexOf("OldImage"), event.indexOf(", SequenceNumber"));
+	    String newImageGetter = event.substring(event.indexOf("OldImage"), event.indexOf(", SequenceNumber")-1);
 	    String newImage = newImageGetter.trim().substring(newImageGetter.indexOf("=")+2, newImageGetter.length()-1);
 	    if(newImage.length() == 0) {
 	    	//A case which corresponds to an erranous case..
@@ -127,13 +128,14 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    }
 	    else {
 	    	//Getting all items of the newImage which are space separated...
-	    	String newImageItems[] = newImage.split(", ");
+	    	//This assumes that NO String data in the event contains "}, " as substring..
+	    	String newImageItems[] = newImage.split("}, ");
 	    	//Creating a hashmap consisting of Keys = attribute names and values = Attribute value..
 	    	HashMap<String, String> map = new HashMap<String, String>();
 	    	//Separating the attribute id and value for each feature which are originally in the form of 'key=value'..
 	    	for(String item : newImageItems) {
 	    		String tempId = item.substring(0, item.indexOf("="));
-	    		String tempValue = item.substring(item.indexOf("=", item.indexOf("=")+1)+1, item.length()-1);
+	    		String tempValue = item.substring(item.indexOf("=", item.indexOf("=")+1)+1, item.length());
 	    		map.put(tempId, tempValue);
 	    	}
 	    	//Logging the key and value map of newly inserted item as  a Map...
@@ -142,9 +144,8 @@ static DbmsLogKeeper myLog = new DbmsLogKeeper();
 	    	//Calling the method to update the details based on the details stored in the map..return 0 if success and -1 if failed.
 	    	updateTable(map);
 	    	//Now we will check for multiple deletions from different playlists simultaniously..
-	    	String remainingEvent = event.substring(event.indexOf(newImageGetter)+1, event.length());
+	    	String remainingEvent = event.substring(event.indexOf(", SequenceNumber")+16, event.length());
 	    	myLog.logInfo("Remaining Event = "+remainingEvent);
-		// Checking if there are more events to delete..
 	    	if(remainingEvent.indexOf("OldImage") >= 0) {
 	    		//We have one more event...so we recurssively call the handleRemove()..
 	    		handleRemove(remainingEvent);
